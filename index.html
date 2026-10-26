@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>首尔出发手册 · FEB 2027</title>
+<style>
+  :root{
+    --ink:#1c1a17; --paper:#f6f1e8; --card:#fffdf8;
+    --muted:#7a7265; --line:#e2d9c8;
+    --accent:#c2452d; --blue:#2d5b7a; --gold:#b98a2f;
+    --d1:#c2452d; --d2:#2d5b7a; --d3:#b98a2f; --d4:#5b7a4a; --d5:#6b4a7a;
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{background:var(--paper);color:var(--ink);
+    font-family:"Hiragino Mincho ProN","Songti SC","Noto Serif SC",serif;line-height:1.7}
+  .sans{font-family:"Hiragino Sans","PingFang SC",sans-serif}
+  .wrap{max-width:960px;margin:0 auto;padding:0 28px}
+
+  header{padding:90px 0 60px;border-bottom:1px solid var(--line)}
+  .kicker{font-size:13px;letter-spacing:.35em;color:var(--accent);margin-bottom:22px}
+  h1{font-size:clamp(40px,7vw,68px);font-weight:600;line-height:1.15}
+  h1 em{font-style:normal;color:var(--accent)}
+  .sub{margin-top:22px;color:var(--muted);font-size:16.5px;max-width:600px}
+  .facts{display:flex;flex-wrap:wrap;margin-top:44px;border-top:1px solid var(--line)}
+  .fact{padding:18px 34px 0 0;margin-right:34px}
+  .fact b{display:block;font-size:23px}
+  .fact span{font-size:12px;letter-spacing:.18em;color:var(--muted)}
+
+  section{padding:70px 0}
+  section+section{border-top:1px solid var(--line)}
+  .sh{display:flex;align-items:baseline;gap:18px;margin-bottom:38px}
+  .sh .no{font-size:13px;color:var(--accent);letter-spacing:.25em}
+  .sh h2{font-size:30px;font-weight:600}
+
+  /* booking combo cards */
+  .combos{display:grid;grid-template-columns:repeat(auto-fit,minmax(270px,1fr));gap:18px}
+  .combo{background:var(--card);border:1px solid var(--line);padding:26px;position:relative}
+  .combo.pick{border-color:var(--accent);box-shadow:0 2px 0 var(--accent)}
+  .combo .tag{position:absolute;top:-11px;left:20px;background:var(--accent);color:#fff;
+    font-size:11px;letter-spacing:.15em;padding:3px 10px}
+  .combo h3{font-size:16.5px;margin-bottom:4px}
+  .combo .route{font-size:12.5px;color:var(--muted);margin-bottom:12px}
+  .combo .row{display:flex;justify-content:space-between;font-size:14px;padding:5px 0;border-top:1px dashed var(--line)}
+  .combo .row.total{border-top:1px solid var(--ink);margin-top:6px;padding-top:9px;font-weight:600}
+  .combo .row.total b{color:var(--accent)}
+  .book{
+    display:inline-block;margin-top:14px;font-size:13px;color:#fff;background:var(--ink);
+    padding:9px 18px;text-decoration:none;letter-spacing:.08em;transition:background .15s;
+  }
+  .book:hover{background:var(--accent)}
+
+  .note{font-size:12.5px;color:var(--muted);margin-top:20px}
+
+  /* map */
+  #map{height:560px;border:1px solid var(--line);background:#e8e2d5;position:relative;z-index:0;overflow:hidden}
+  #map svg{display:block;width:100%;height:100%;font-family:"Hiragino Mincho ProN","Songti SC","Noto Serif SC",serif}
+  .map-paper{fill:var(--paper)}
+  .map-region{fill:#e8dfcf;stroke:#d8ccb9;stroke-width:1.5;opacity:.78}
+  .map-region-label{fill:#867963;font-size:18px;letter-spacing:.16em}
+  .map-water{fill:#cadbe0;stroke:#9ab8c2;stroke-width:2}
+  .map-water-line{fill:none;stroke:#9ab8c2;stroke-width:2;opacity:.7}
+  .map-title{fill:var(--ink);font-size:30px;font-weight:600;letter-spacing:.12em}
+  .map-subtitle{fill:var(--muted);font-size:13px;letter-spacing:.1em}
+  .map-route{fill:none;stroke-width:3;stroke-dasharray:9 9;stroke-linecap:round;opacity:.78}
+  .map-point{cursor:pointer;transition:transform .18s ease;transform-box:fill-box;transform-origin:center}
+  .map-point:hover,.map-point.is-selected{transform:scale(1.35)}
+  .map-point circle{stroke:#fffdf8;stroke-width:3;filter:drop-shadow(0 1px 1px rgba(28,26,23,.2))}
+  .map-point.is-selected circle{stroke:var(--ink);stroke-width:4}
+  .map-point text{fill:var(--ink);font-size:15px;font-weight:600;paint-order:stroke;stroke:var(--paper);stroke-width:5px;stroke-linejoin:round;pointer-events:none}
+  #map-tooltip{position:absolute;display:none;max-width:230px;background:var(--card);border:1px solid var(--line);box-shadow:0 4px 14px rgba(28,26,23,.14);padding:11px 13px;font-family:"Hiragino Sans","PingFang SC",sans-serif;font-size:13px;line-height:1.5;z-index:2}
+  #map-tooltip.is-visible{display:block}
+  #map-tooltip b{display:block;font-size:14px;margin-bottom:3px}
+  #map-tooltip a{color:var(--blue)}
+  .map-arrow{fill:var(--muted);font-family:"Hiragino Sans","PingFang SC",sans-serif;font-size:13px}
+  .map-legend{display:flex;flex-wrap:wrap;gap:14px;margin-top:14px;font-size:13px}
+  .map-legend span{display:inline-flex;align-items:center;gap:7px}
+  .map-legend i{width:22px;height:3px;display:inline-block}
+
+  /* days */
+  .day{display:grid;grid-template-columns:130px 1fr;gap:26px;padding:28px 0;border-bottom:1px solid var(--line)}
+  .day:last-child{border-bottom:none}
+  .day .dt b{display:block;font-size:21px}
+  .day .dt span{font-size:12px;letter-spacing:.18em}
+  .day h4{font-size:17px;margin-bottom:6px}
+  .day p{font-size:14.5px;color:#3d382f}
+  .day p.meals{color:var(--muted);font-size:13.5px;margin-top:7px}
+  .day p.meals::before{content:"食 · ";color:var(--gold)}
+  .day .goto{font-size:12.5px;margin-top:8px;display:flex;gap:16px;flex-wrap:wrap}
+  .day .goto a{color:var(--blue);text-decoration:none;border-bottom:1px solid var(--blue)}
+  .dnum{color:var(--muted)}
+
+  /* checklist */
+  .check-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:22px}
+  .check-col h3{font-size:16px;margin-bottom:12px;padding-bottom:8px;border-bottom:2px solid var(--ink)}
+  .check-item{display:flex;gap:11px;align-items:flex-start;padding:8px 0;font-size:14px;cursor:pointer;user-select:none}
+  .check-item input{margin-top:5px;width:16px;height:16px;accent-color:var(--accent);flex-shrink:0}
+  .check-item small{display:block;color:var(--muted);font-size:12.5px}
+  .check-item.done label{text-decoration:line-through;color:var(--muted)}
+  .progress{font-size:13px;color:var(--muted);margin-bottom:20px}
+  .progress b{color:var(--accent)}
+
+  footer{border-top:1px solid var(--ink);padding:34px 0 60px;font-size:12.5px;color:var(--muted);
+    display:flex;justify-content:space-between;flex-wrap:wrap;gap:10px}
+  footer b{color:var(--ink)}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wrap">
+    <div class="kicker">TOKYO → SEOUL · TRIP HANDBOOK</div>
+    <h1>首尔出发手册<br><em>2/15 – 2/19</em> · 两个人</h1>
+    <p class="sub">从预订链接、地图动线到出发清单——这一页搞定。勾选状态自动保存，出发前从头过一遍就行。</p>
+    <div class="facts">
+      <div class="fact"><b>¥6,044</b><span>推荐方案机+酒</span></div>
+      <div class="fact"><b>¥7,500</b><span>预算上限</span></div>
+      <div class="fact"><b>4晚5天</b><span>平季平日 · 全年低价</span></div>
+      <div class="fact"><b>9处</b><span>地图标注地点</span></div>
+    </div>
+  </div>
+</header>
+
+<!-- 01 BOOKING -->
+<section id="booking">
+  <div class="wrap">
+    <div class="sh"><span class="no">01</span><h2>预订 · 点了就能订</h2></div>
+    <div class="combos">
+      <div class="combo pick">
+        <span class="tag">推荐 · 省钱版</span>
+        <h3>乐桃航空 + 明洞梅林酒店</h3>
+        <div class="route">成田 ⇄ 仁川 · 明洞 4晚 ¥1,613（8.4分）</div>
+        <div class="row"><span>机票 2人含税</span><b>¥2,800</b></div>
+        <div class="row total"><span>合计</span><b>¥4,413</b></div>
+        <a class="book" href="https://www.flypeach.com/" target="_blank">订机票 · flypeach.com ↗</a>
+        <a class="book" style="background:var(--blue)" href="https://hk.trip.com/hotels/list?city=274&checkin=2027-02-15&checkout=2027-02-19&adult=2&crn=1&curr=CNY" target="_blank">订酒店 · Trip.com ↗</a>
+      </div>
+      <div class="combo">
+        <h3>ZIPAIR + 九树明洞2（4星）</h3>
+        <div class="route">成田 ⇄ 仁川 · 9.0分 韩国精选第6</div>
+        <div class="row"><span>机票 2人含税</span><b>¥2,800</b></div>
+        <div class="row"><span>酒店 4晚</span><b>¥3,244</b></div>
+        <div class="row total"><span>合计</span><b>¥6,044</b></div>
+        <a class="book" href="https://www.zipair.net/" target="_blank">订机票 · zipair.net ↗</a>
+        <a class="book" style="background:var(--blue)" href="https://hk.trip.com/hotels/list?city=274&checkin=2027-02-15&checkout=2027-02-19&adult=2&crn=1&curr=CNY" target="_blank">订酒店 · Trip.com ↗</a>
+      </div>
+      <div class="combo">
+        <h3>大韩航空 + 明洞梅林酒店</h3>
+        <div class="route">含 2×23kg 托运 · 买手信党选这个</div>
+        <div class="row"><span>机票 2人含税</span><b>¥4,600</b></div>
+        <div class="row"><span>酒店 4晚</span><b>¥1,613</b></div>
+        <div class="row total"><span>合计</span><b>¥6,213</b></div>
+        <a class="book" href="https://www.koreanair.com/" target="_blank">订机票 · koreanair.com ↗</a>
+        <a class="book" style="background:var(--blue)" href="https://hk.trip.com/hotels/list?city=274&checkin=2027-02-15&checkout=2027-02-19&adult=2&crn=1&curr=CNY" target="_blank">订酒店 · Trip.com ↗</a>
+      </div>
+    </div>
+    <p class="note">价格为 2026-10-26 预售参考价，随舱位售出上调，确定后尽早下单、选免费取消房型。⚠️ 大韩/ANA + 九树 或 L7弘大 会超预算。备选酒店：设计者DDP ¥1,592 · Friendly DH ¥1,668(含早) · 乐天L7弘大 ¥3,387 — 同一个 Trip.com 链接里搜名字即可。</p>
+  </div>
+</section>
+
+<!-- 02 MAP -->
+<section id="mapsection">
+  <div class="wrap">
+    <div class="sh"><span class="no">02</span><h2>地图动线 · 五天一览</h2></div>
+    <div id="map">
+      <!-- 内嵌 SVG 示意图：所有地图图形、路线和链接都在本页内，无外部地图请求。 -->
+      <svg viewBox="0 0 1000 600" role="img" aria-label="首尔手绘示意图">
+        <rect class="map-paper" x="0" y="0" width="1000" height="600"/>
+        <text class="map-title" x="42" y="52">首尔手绘示意图</text>
+        <text class="map-subtitle" x="44" y="77">SEOUL · 五天动线 · 示意位置</text>
+        <path class="map-region" d="M70 112 Q250 78 440 124 L470 300 Q340 336 170 315 L70 260Z"/>
+        <path class="map-region" d="M505 106 Q720 80 925 142 L900 322 Q730 345 510 300Z"/>
+        <path class="map-region" d="M72 465 Q260 405 465 453 L490 570 L82 570Z"/>
+        <path class="map-region" d="M520 466 Q735 410 918 460 L950 570 L520 570Z"/>
+        <path class="map-water" d="M0 405 Q150 370 290 405 T560 404 T820 408 T1000 392 L1000 453 Q840 470 690 448 T390 453 T120 446 T0 470Z"/>
+        <path class="map-water-line" d="M0 426 Q155 397 300 428 T610 425 T1000 416"/>
+        <text class="map-region-label" x="214" y="180">江北</text>
+        <text class="map-region-label" x="690" y="188">钟路 · 东大门</text>
+        <text class="map-region-label" x="190" y="530">江南</text>
+        <text class="map-region-label" x="705" y="530">东南生活圈</text>
+        <text class="map-subtitle" x="760" y="437">汉江</text>
+        <!-- 每日虚线路线 -->
+        <path class="map-route" stroke="var(--d1)" d="M45 365 L505 350"/>
+        <path class="map-route" stroke="var(--d2)" d="M505 350 L455 230 L505 205 L540 275 L505 350"/>
+        <path class="map-route" stroke="var(--d3)" d="M505 350 L530 418 L505 350"/>
+        <path class="map-route" stroke="var(--d4)" d="M505 350 L285 365 L760 360 L170 425"/>
+        <path class="map-route" stroke="var(--d5)" d="M505 350 L640 300 L45 365"/>
+        <!-- 仁川机场在地图左外缘方向 -->
+        <path d="M16 342 L48 342" stroke="var(--muted)" stroke-width="2"/>
+        <path d="M28 334 L16 342 L28 350" fill="none" stroke="var(--muted)" stroke-width="2"/>
+        <text class="map-arrow" x="12" y="322">仁川方向 →</text>
+        <!-- 十个地点：链接保存在各圆点的 data-link 属性中 -->
+        <g class="map-point" data-key="icn" data-link="https://map.naver.com/p/search/%EC%9D%B8%EC%B2%9C%EA%B3%B5%ED%95%AD" transform="translate(45 365)"><circle r="10" fill="var(--d1)"/><text x="16" y="5">仁川机场 ICN</text></g>
+        <g class="map-point" data-key="hotel" data-link="https://map.naver.com/p/search/%EB%AA%85%EB%8F%99%EB%A9%80%EB%A6%B0%ED%98%B8%ED%85%94" transform="translate(505 350)"><circle r="10" fill="var(--d1)"/><text x="16" y="5">明洞梅林酒店</text></g>
+        <g class="map-point" data-key="gyeong" data-link="https://map.naver.com/p/search/%EA%B2%BD%EB%B3%B5%EA%B6%81" transform="translate(455 230)"><circle r="10" fill="var(--d2)"/><text x="16" y="5">景福宫</text></g>
+        <g class="map-point" data-key="bukchon" data-link="https://map.naver.com/p/search/%EB%B6%81%EC%B4%8C%ED%95%9C%EC%98%A5%EB%A7%88%EC%9D%84" transform="translate(505 205)"><circle r="10" fill="var(--d2)"/><text x="16" y="5">北村</text></g>
+        <g class="map-point" data-key="insadong" data-link="https://map.naver.com/p/search/%EC%9D%B8%EC%82%AC%EB%8F%99" transform="translate(540 275)"><circle r="10" fill="var(--d2)"/><text x="16" y="5">仁寺洞</text></g>
+        <g class="map-point" data-key="namsan" data-link="https://map.naver.com/p/search/%EB%82%A8%EC%82%B0%EC%84%B8%EC%9B%80%ED%83%80%EC%9B%8C" transform="translate(530 418)"><circle r="10" fill="var(--d3)"/><text x="16" y="5">N 首尔塔</text></g>
+        <g class="map-point" data-key="hongdae" data-link="https://map.naver.com/p/search/%ED%99%8D%EB%8C%80" transform="translate(285 365)"><circle r="10" fill="var(--d4)"/><text x="-16" y="-16" text-anchor="end">弘大</text></g>
+        <g class="map-point" data-key="seongsu" data-link="https://map.naver.com/p/search/%EC%84%B1%EC%88%98%EB%8F%99" transform="translate(760 360)"><circle r="10" fill="var(--d4)"/><text x="16" y="5">圣水洞</text></g>
+        <g class="map-point" data-key="mangwon" data-link="https://map.naver.com/p/search/%EB%A7%9D%EC%9B%90%ED%95%9C%EA%B0%95%EA%B3%B5%EC%9B%90" transform="translate(170 425)"><circle r="10" fill="var(--d4)"/><text x="16" y="5">望远汉江公园</text></g>
+        <g class="map-point" data-key="gwangjang" data-link="https://map.naver.com/p/search/%EA%B4%91%EC%9E%A5%EC%8B%9C%EC%9E%A5" transform="translate(640 300)"><circle r="10" fill="var(--d5)"/><text x="16" y="5">广藏市场</text></g>
+      </svg>
+      <div id="map-tooltip" role="status" aria-live="polite"></div>
+    </div>
+    <div class="map-legend sans">
+      <span><i style="background:var(--d1)"></i>D1 抵达</span>
+      <span><i style="background:var(--d2)"></i>D2 古宫北村</span>
+      <span><i style="background:var(--d3)"></i>D3 明洞南山</span>
+      <span><i style="background:var(--d4)"></i>D4 弘大圣水</span>
+      <span><i style="background:var(--d5)"></i>D5 返程</span>
+      <span>点击圆点查看详情 / 导航</span>
+    </div>
+  </div>
+</section>
+
+<!-- 03 ITINERARY -->
+<section id="days">
+  <div class="wrap">
+    <div class="sh"><span class="no">03</span><h2>每日行程</h2></div>
+
+    <div class="day">
+      <div class="dt"><span class="dnum">DAY 1 · MON</span><b>2/15 抵达</b></div>
+      <div>
+        <h4>落地首尔 · 倒时差</h4>
+        <p>仁川机场买 T-money（卡3,000 + 充2万韩元）→ AREX 进市区（明洞 51 分 / 弘大 1 小时）→ 入住 → 便利店夜宵街探路，早睡。</p>
+        <p class="meals">机内餐 / 机场 · 夜宵：街头小吃</p>
+        <div class="goto sans"><a href="https://map.naver.com/p/directions/-/14139318,,/route/public" target="_blank">AREX 仁川→首尔站 ↗</a></div>
+      </div>
+    </div>
+
+    <div class="day">
+      <div class="dt"><span class="dnum">DAY 2 · TUE</span><b>2/16 历史线</b></div>
+      <div>
+        <h4>景福宫 → 北村 → 仁寺洞</h4>
+        <p>穿韩服免费进景福宫（租赁2人共享1–2万韩元）→ 土俗村参鸡汤 → 三清洞 → 北村韩屋村（免费）→ 仁寺洞文创巷 → 清溪川夜景。</p>
+        <p class="meals">参鸡汤（人均2万）· 泡菜锅/饺子</p>
+        <div class="goto sans"><a href="https://map.naver.com/p/search/%EA%B2%BD%EB%B3%B5%EA%B6%81" target="_blank">景福宫 ↗</a><a href="https://map.naver.com/p/search/%EB%B6%81%EC%B4%8C%ED%95%9C%EC%98%A5%EB%A7%88%EC%9D%84" target="_blank">北村韩屋村 ↗</a><a href="https://map.naver.com/p/search/%EC%9D%B8%EC%82%AC%EB%8F%99" target="_blank">仁寺洞 ↗</a></div>
+      </div>
+    </div>
+
+    <div class="day">
+      <div class="dt"><span class="dnum">DAY 3 · WED</span><b>2/17 地标线</b></div>
+      <div>
+        <h4>明洞 → 南山 N 首尔塔 → 汗蒸幕</h4>
+        <p>明洞大教堂+免税店 → 街头小吃午餐 → 02路巴士上 N 首尔塔（1,900韩元，比缆车省一半）→ 晚上汗蒸幕暖身。</p>
+        <p class="meals">汤饭 · 明洞小吃拼盘 · 王妃家烤肉（人均2–3万）</p>
+        <div class="goto sans"><a href="https://map.naver.com/p/search/%EB%82%A8%EC%82%B0%EC%84%B8%EC%9B%80%ED%83%80%EC%9B%8C" target="_blank">N 首尔塔 ↗</a><a href="https://map.naver.com/p/search/%EB%AA%85%EB%8F%99%EC%84%B1%EB%8B%B9" target="_blank">明洞大教堂 ↗</a></div>
+      </div>
+    </div>
+
+    <div class="day">
+      <div class="dt"><span class="dnum">DAY 4 · THU</span><b>2/18 青春线</b></div>
+      <div>
+        <h4>弘大 → 圣水洞 → 汉江炸鸡啤酒</h4>
+        <p>延南洞咖啡街 + K-POP 唱片店 → 圣水洞大林仓库文创区 → 傍晚望远汉江公园，便利店炸鸡啤酒看夜景。</p>
+        <p class="meals">Isaac 吐司 · 圣水洞 brunch · 望远市场 + 江边炸鸡</p>
+        <div class="goto sans"><a href="https://map.naver.com/p/search/%ED%99%8D%EB%8C%80" target="_blank">弘大 ↗</a><a href="https://map.naver.com/p/search/%EC%84%B1%EC%88%98%EB%8F%99%EC%B9%B4%ED%8E%98%EA%B1%B0%EB%A6%AC" target="_blank">圣水洞 ↗</a><a href="https://map.naver.com/p/search/%EB%A7%9D%EC%9B%90%ED%95%9C%EA%B0%95%EA%B3%B5%EC%9B%90" target="_blank">望远汉江公园 ↗</a></div>
+      </div>
+    </div>
+
+    <div class="day">
+      <div class="dt"><span class="dnum">DAY 5 · FRI</span><b>2/19 返程</b></div>
+      <div>
+        <h4>广藏市场 → 仁川机场</h4>
+        <p>退房寄存行李 → 广藏市场绿豆煎饼+麻药紫菜包饭（或东大门 DDP 拍照）→ 提前 3 小时出发 AREX 回机场 → 退税 → 晚间航班回东京。</p>
+        <p class="meals">雪浓汤 · 广藏市场小吃</p>
+        <div class="goto sans"><a href="https://map.naver.com/p/search/%EA%B4%91%EC%9E%A5%EC%8B%9C%EC%9E%A5" target="_blank">广藏市场 ↗</a><a href="https://map.naver.com/p/search/%EB%8F%99%EB%8C%80%EB%AC%B8DDP" target="_blank">东大门 DDP ↗</a></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 04 CHECKLIST -->
+<section id="checklist">
+  <div class="wrap">
+    <div class="sh"><span class="no">04</span><h2>出发清单 · 逐项打勾</h2></div>
+    <p class="progress sans">已完成 <b id="pnum">0</b> / <span id="ptotal">0</span> 项（勾选自动保存在本页）</p>
+    <div class="check-grid">
+      <div class="check-col">
+        <h3>🛂 证件与预订（现在就办）</h3>
+        <label class="check-item"><input type="checkbox"><span>订机票<a class="note" style="display:inline"></a><small>乐桃/ZIPAIR 预售价会涨，定了立刻下单</small></span></label>
+        <label class="check-item"><input type="checkbox"><span>订酒店<small>Trip.com 选免费取消房型</small></span></label>
+        <label class="check-item"><input type="checkbox"><span>办韩国旅游签证<small>驻日使领馆指定代办，约1–2周出签</small></span></label>
+        <label class="check-item"><input type="checkbox"><span>确认 K-ETA 是否豁免<small>未豁免需提前72h+在线申请（约1万韩元）</small></span></label>
+        <label class="check-item"><input type="checkbox"><span>护照有效期检查<small>建议留6个月以上有效期</small></span></label>
+        <label class="check-item"><input type="checkbox"><span>买旅游保险<small>两人5天，几百日元档即可</small></span></label>
+      </div>
+      <div class="check-col">
+        <h3>💴 钱与通讯</h3>
+        <label class="check-item"><input type="checkbox"><span>换韩元现金 5–10万<small>大部分地方可刷卡，支付宝/微信汇率更好</small></span></label>
+        <label class="check-item"><input type="checkbox"><span>确认信用卡可用海外支付<small>Visa/银联优先</small></span></label>
+        <label class="check-item"><input type="checkbox"><span>开通国际漫游或租 eSIM/随身WiFi<small>韩国网速快，eSIM 最省事</small></span></label>
+        <label class="check-item"><input type="checkbox"><span>装 App：Naver Map · Papago · Subway Korea<small>Google 在韩国步行导航不好用</small></span></label>
+        <label class="check-item"><input type="checkbox"><span>下载翻译离线包<small>韩语菜单场景多</small></span></label>
+      </div>
+      <div class="check-col">
+        <h3>🧣 行装（2月首尔 0 ~ −5°C）</h3>
+        <label class="check-item"><input type="checkbox"><span>羽绒服 / 厚外套<small>首尔风大，体感比东京冷</small></span></label>
+        <label class="check-item"><input type="checkbox"><span>发热内衣 ×2、围巾、手套<small>N塔和汉江边夜间更冷</small></span></label>
+        <label class="check-item"><input type="checkbox"><span>防滑保暖鞋<small>可能有冰雪路面</small></span></label>
+        <label class="check-item"><input type="checkbox"><span>保湿护肤品 + 润唇膏<small>干冷+暖气房</small></span></label>
+        <label class="check-item"><input type="checkbox"><span>充电宝 + 转换插头（德标C型）<small>韩国220V，两脚圆插</small></span></label>
+        <label class="check-item"><input type="checkbox"><span>空行李袋<small>装零食/化妆品回来</small></span></label>
+      </div>
+      <div class="check-col">
+        <h3>✈️ 出发前一天</h3>
+        <label class="check-item"><input type="checkbox"><span>在线值机 + 确认航站楼<small>乐桃/ZIPAIR 在成田 T1/T3，看预订确认单</small></span></label>
+        <label class="check-item"><input type="checkbox"><span>截图保存预订确认单<small>机票+酒店+保险</small></span></label>
+        <label class="check-item"><input type="checkbox"><span>清空手提行李超标液体<small>LCC 7kg 手提限额外购票</small></span></label>
+        <label class="check-item"><input type="checkbox"><span>买成田机场往返交通<small>N'EX 或京成 Skyliner</small></span></label>
+        <label class="check-item"><input type="checkbox"><span>垃圾清掉 · 拔插头 · 关煤气</small></label>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap" style="display:flex;justify-content:space-between;flex-wrap:wrap;gap:10px;width:100%">
+    <span>SEOUL HANDBOOK · FEB 15–19 · 2027</span>
+    <span>机+酒 <b>¥4,413 – ¥6,213 / 上限 ¥7,500</b> · 价格为 2026-10-26 参考价</span>
+  </div>
+</footer>
+
+<script>
+// ── 内嵌首尔示意图：不依赖地图服务，断网也能显示 ──
+const P = {
+  icn:{n:'仁川机场 ICN',d:'D1 抵达 · D5 返程 · AREX 进市区',ll:[37.4602,126.4407],lnk:'https://map.naver.com/p/search/%EC%9D%B8%EC%B2%9C%EA%B3%B5%ED%95%AD'},
+  hotel:{n:'🏨 明洞梅林酒店',d:'4晚大本营 · 明洞心脏地带',ll:[37.5636,126.9853],lnk:'https://map.naver.com/p/search/%EB%AA%85%EB%8F%99%EB%A9%80%EB%A6%B0%ED%98%B8%ED%85%94'},
+  gyeong:{n:'景福宫',d:'D2 · 韩服免费入场',ll:[37.5796,126.9770],lnk:'https://map.naver.com/p/search/%EA%B2%BD%EB%B3%B5%EA%B6%81'},
+  bukchon:{n:'北村韩屋村',d:'D2 · 免费 · 三清洞旁',ll:[37.5826,126.9836],lnk:'https://map.naver.com/p/search/%EB%B6%81%EC%B4%8C%ED%95%9C%EC%98%A5%EB%A7%88%EC%9D%84'},
+  insadong:{n:'仁寺洞',d:'D2 · 文创巷 + 晚餐',ll:[37.5745,126.9876],lnk:'https://map.naver.com/p/search/%EC%9D%B8%EC%82%AC%EB%8F%99'},
+  namsan:{n:'N 首尔塔',d:'D3 · 02路巴士上山 ¥1,900',ll:[37.5512,126.9882],lnk:'https://map.naver.com/p/search/%EB%82%A8%EC%82%B0%EC%84%B8%EC%9B%80%ED%83%80%EC%9B%8C'},
+  hongdae:{n:'弘大',d:'D4 · 咖啡街 + K-POP 淘货',ll:[37.5572,126.9245],lnk:'https://map.naver.com/p/search/%ED%99%8D%EB%8C%80'},
+  seongsu:{n:'圣水洞',d:'D4 · 大林仓库文创区',ll:[37.5444,127.0557],lnk:'https://map.naver.com/p/search/%EC%84%B1%EC%88%98%EB%8F%99'},
+  mangwon:{n:'望远汉江公园',d:'D4 · 炸鸡啤酒看夜景',ll:[37.5570,126.8960],lnk:'https://map.naver.com/p/search/%EB%A7%9D%EC%9B%90%ED%95%9C%EA%B0%95%EA%B3%B5%EC%9B%90'},
+  gwangjang:{n:'广藏市场',d:'D5 · 绿豆煎饼 + 麻药紫菜包饭',ll:[37.5703,126.9971],lnk:'https://map.naver.com/p/search/%EA%B4%91%EC%9E%A5%EC%8B%9C%EC%9E%A5'},
+};
+
+const dayColors = {d1:'#c2452d',d2:'#2d5b7a',d3:'#b98a2f',d4:'#5b7a4a',d5:'#6b4a7a'};
+const mapEl=document.getElementById('map');
+const tooltip=document.getElementById('map-tooltip');
+const points=[...mapEl.querySelectorAll('.map-point')];
+// 点击圆点时显示 HTML tooltip，并保留原地点的 Naver Map 链接。
+points.forEach(point=>point.addEventListener('click',()=>{
+  points.forEach(item=>item.classList.remove('is-selected'));
+  point.classList.add('is-selected');
+  const p=P[point.dataset.key];
+  tooltip.innerHTML=`<b>${p.n}</b><span>${p.d}</span><br><a href="${point.dataset.link}" target="_blank" rel="noopener">在 Naver Map 打开 ↗</a>`;
+  const mapRect=mapEl.getBoundingClientRect();
+  const pointRect=point.getBoundingClientRect();
+  tooltip.style.left=`${Math.min(mapEl.clientWidth-245,Math.max(10,pointRect.left-mapRect.left+16))}px`;
+  tooltip.style.top=`${Math.min(mapEl.clientHeight-110,Math.max(10,pointRect.top-mapRect.top-12))}px`;
+  tooltip.classList.add('is-visible');
+}));
+mapEl.addEventListener('click',event=>{if(event.target===mapEl)tooltip.classList.remove('is-visible');});
+
+// ── checklist persistence ──
+const KEY='seoul-trip-checklist-v1';
+const saved=JSON.parse(localStorage.getItem(KEY)||'{}');
+const items=[...document.querySelectorAll('.check-item')];
+document.getElementById('ptotal').textContent=items.length;
+items.forEach((el,i)=>{
+  const cb=el.querySelector('input');
+  if(saved[i]) {cb.checked=true; el.classList.add('done');}
+  cb.addEventListener('change',()=>{
+    saved[i]=cb.checked; el.classList.toggle('done',cb.checked);
+    localStorage.setItem(KEY,JSON.stringify(saved));
+    document.getElementById('pnum').textContent=items.filter(x=>x.querySelector('input').checked).length;
+  });
+});
+document.getElementById('pnum').textContent=items.filter(x=>x.querySelector('input').checked).length;
+</script>
+</body>
+</html>
